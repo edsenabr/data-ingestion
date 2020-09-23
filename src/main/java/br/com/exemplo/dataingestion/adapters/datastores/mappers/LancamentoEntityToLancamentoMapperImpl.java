@@ -10,6 +10,7 @@ public class LancamentoEntityToLancamentoMapperImpl implements EntityMapper<Lanc
     @Override
     public Lancamento convert(LancamentoEntity lancamentoEntity) {
         return Lancamento.builder()
+
                 .codigoMoedaTransacao(lancamentoEntity.getCodigoMoedaTransacao())
                 .codigoMotivoLancamento(lancamentoEntity.getCodigoMotivoLancamento())
                 .codigoTipoOperacao(lancamentoEntity.getCodigoTipoOperacao())

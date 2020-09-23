@@ -6,6 +6,8 @@ import br.com.exemplo.dataingestion.domain.entities.Conta;
 import br.com.exemplo.dataingestion.domain.entities.Lancamento;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class LancamentoToLancamentoEntityMapperImpl implements EntityMapper<Lancamento,LancamentoEntity> {
     @Override
