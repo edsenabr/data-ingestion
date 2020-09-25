@@ -26,7 +26,7 @@ public class LancamentoListRepositoryImpl implements LancamentoListRepository {
     private final EntityMapper<LancamentoEntity,Lancamento> lancamentoEntityLancamentoEntityMapper;
     private final ElasticsearchOperations elasticsearchOperations;
     private final MeterRegistry simpleMeterRegistry;
-    private static final String EXTRATO="extrato";
+    private static final String EXTRATO="extrato_alias";
 
     @Override
     public List<String> save(List<Lancamento> lancamentoList) {

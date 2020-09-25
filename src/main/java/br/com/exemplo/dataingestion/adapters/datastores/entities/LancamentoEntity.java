@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @ToString
-@Document(indexName = "extrato")
+@Document(indexName = "extrato_alias",createIndex = false)
 public class LancamentoEntity {
     @Id
     private UUID numeroIdentificacaoLancamentoConta;
