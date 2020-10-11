@@ -65,11 +65,11 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-elasticsearch</artifactId>
 			<version>1.11.346</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
@@ -91,16 +91,47 @@
 			<version>4.0.1</version>
 		</dependency>
 
+		<dependency>
+    	<groupId>org.springframework.cloud</groupId>
+    	<artifactId>spring-cloud-starter-aws</artifactId>
+    	<version>2.2.4.RELEASE</version>
+		</dependency>
+		<dependency>
+    	<groupId>io.micrometer</groupId>
+    	<artifactId>micrometer-core</artifactId>
+    	<version>1.5.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-cloudwatch</artifactId>
+			<version>1.5.5</version>
+		</dependency>
 
 	</dependencies>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
+			<plugins>
+					<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-jar-plugin</artifactId>
+							<configuration>
+									<excludes>
+											<exclude>**/application*.properties</exclude>
+									</excludes>
+							</configuration>
+					</plugin>
+					<plugin>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-maven-plugin</artifactId>
+							<executions>
+									<execution>
+											<goals>
+													<goal>repackage</goal>
+											</goals>
+									</execution>
+							</executions>
+					</plugin>
+			</plugins>
 	</build>
-
 </project>

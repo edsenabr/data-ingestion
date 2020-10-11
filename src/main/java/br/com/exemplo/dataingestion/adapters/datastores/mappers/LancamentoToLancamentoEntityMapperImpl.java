@@ -1,20 +1,16 @@
 package br.com.exemplo.dataingestion.adapters.datastores.mappers;
 
-import br.com.exemplo.dataingestion.adapters.datastores.entities.ContaEntity;
-import br.com.exemplo.dataingestion.adapters.datastores.entities.LancamentoEntity;
-import br.com.exemplo.dataingestion.domain.entities.Conta;
-import br.com.exemplo.dataingestion.domain.entities.Lancamento;
-import com.fasterxml.uuid.Generators;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+import br.com.exemplo.dataingestion.adapters.datastores.entities.ContaEntity;
+import br.com.exemplo.dataingestion.adapters.datastores.entities.LancamentoEntity;
+import br.com.exemplo.dataingestion.domain.entities.Lancamento;
 
 @Component
 public class LancamentoToLancamentoEntityMapperImpl implements EntityMapper<Lancamento,LancamentoEntity> {
 
     @Override
     public LancamentoEntity convert(Lancamento lancamento) {
-        UUID id = Generators.randomBasedGenerator().generate();
         return LancamentoEntity.builder()
                 .codigoMoedaTransacao(lancamento.getCodigoMoedaTransacao())
                 .codigoMotivoLancamento(lancamento.getCodigoMotivoLancamento())
@@ -29,8 +25,7 @@ public class LancamentoToLancamentoEntityMapperImpl implements EntityMapper<Lanc
                 .dataLancamento(lancamento.getDataLancamento())
                 .indicadorLancamentoCompulsorioOcorrencia(lancamento.isIndicadorLancamentoCompulsorioOcorrencia())
                 .metadados(lancamento.getMetadados())
-                .numeroIdentificacaoLancamentoConta(id)
-                .routing(id.toString())
+                .numeroIdentificacaoLancamentoConta(lancamento.getNumeroIdentificacaoLancamentoConta())
                 .siglaSistemaOrigem(lancamento.getSiglaSistemaOrigem())
                 .textoComplementoLancamento(lancamento.getTextoComplementoLancamento())
                 .valorLancamento(lancamento.getValorLancamento())

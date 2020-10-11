@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-ingestion
+  labels:
+    app: data-ingestion
+  namespace: data-ingestion
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: data-ingestion
+  template:
+    metadata:
+      labels:
+        app: data-ingestion
+    spec:
+      #serviceAccountName: statement-demo
+      containers:
+      - name: data-ingestion
+        image: 837108680928.dkr.ecr.us-east-1.amazonaws.com/data-ingestion:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /tmp/application-aws.properties
+          name: config
+          subPath: application-aws.properties
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: 1
+          requests:
+            memory: "2Gi"
+            cpu: 1
+        env:
+        - name: JAVA_OPTS
+          value: "-Xmx1024m -Xms1024m"
+        - name: KAFKA_BOOTSTRAP
+          valueFrom:
+            configMapKeyRef:
+              name: service-discovery
+              key: msk
+        - name: KAFKA_GROUP_ID
+          value: "data-ingestion"
+        - name: KAFKA_MAX_POOL_RECORDS
+          value: "10000"
+        - name: KAFKA_CONCURRENCY
+          value: "100"
+        - name: KAFKA_TOPIC
+          value: "generate"
+        - name: ELASTICSEARCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: elasticsearch
+              key: username
+        - name: ELASTICSEARCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: elasticsearch
+              key: password
+        - name: ELASTICSEARCH_URIS
+          valueFrom:
+            configMapKeyRef:
+              name: service-discovery
+              key: es
+        - name: CLOUDWATCH_NAMESPACE
+          value: "statement12"
+        - name: CLOUDWATCH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: cloudwatch
+              key: username
+        - name: CLOUDWATCH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cloudwatch
+              key: password
+      volumes:
+      - configMap:
+          name: application.properties
+        name: config

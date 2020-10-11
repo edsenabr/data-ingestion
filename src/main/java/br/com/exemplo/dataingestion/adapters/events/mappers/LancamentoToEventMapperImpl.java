@@ -1,11 +1,11 @@
 package br.com.exemplo.dataingestion.adapters.events.mappers;
 
+import org.springframework.stereotype.Component;
+
 import br.com.exemplo.dataingestion.adapters.events.entities.ContaEvent;
 import br.com.exemplo.dataingestion.adapters.events.entities.DataLancamentoEvent;
 import br.com.exemplo.dataingestion.adapters.events.entities.LancamentoEvent;
-import br.com.exemplo.dataingestion.domain.entities.Conta;
 import br.com.exemplo.dataingestion.domain.entities.Lancamento;
-import org.springframework.stereotype.Component;
 
 @Component
 public class LancamentoToEventMapperImpl implements EventMapper<Lancamento,DataLancamentoEvent > {

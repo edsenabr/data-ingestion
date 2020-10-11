@@ -1,7 +1,5 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.2.9-slim
+FROM amazoncorretto:8-alpine-jre
 WORKDIR /opt
-ENV PORT 8080
-EXPOSE 8080
 COPY kafka.client.truststore.jks /opt/kafka.client.truststore.jks
 COPY target/*.jar /opt/data-ingestion.jar
-ENTRYPOINT exec java $JAVA_OPTS -jar data-ingestion.jar
+ENTRYPOINT exec java $JAVA_OPTS -jar data-ingestion.jar --spring.profiles.active=aws --spring.config.location=/tmp/
