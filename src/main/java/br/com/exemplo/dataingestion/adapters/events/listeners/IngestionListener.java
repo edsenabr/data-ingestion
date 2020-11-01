@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,6 @@ import br.com.exemplo.dataingestion.domain.entities.Lancamento;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -24,16 +24,22 @@ import lombok.extern.slf4j.Slf4j;
 @KafkaListener(groupId = "${spring.kafka.consumer.group-id}",
         topics = "${data.ingestion.producer.topic}",
         containerFactory = "kafkaListenerContainerFactory")
-@RequiredArgsConstructor
 public class IngestionListener {
+
+    public IngestionListener(@Value("${POD_NAME}") String podName, UseCase<List<Lancamento>, Boolean> extratoService,
+            EventMapper<DataLancamentoEvent, Lancamento> dataLancamentoEventLancamentoEventMapper) {
+        this.extratoService = extratoService;
+        this.dataLancamentoEventLancamentoEventMapper = dataLancamentoEventLancamentoEventMapper;
+        errors = Metrics.globalRegistry.counter("elasticsearch.errors", "Type", podName);
+        failedCounter = Metrics.globalRegistry.counter("elasticsearch.failed", "Type", podName);
+        total = Metrics.globalRegistry.timer("elasticsearch.total", "Type", podName);
+    }
 
     private final UseCase<List<Lancamento>,Boolean> extratoService;
     private final EventMapper<DataLancamentoEvent, Lancamento> dataLancamentoEventLancamentoEventMapper;
-    Counter errors = Metrics.globalRegistry.counter("elasticsearch.errors", "Type", "Record");
-    Counter failedCounter = Metrics.globalRegistry.counter("elasticsearch.failed", "Type", "Record");
-    Timer total = Metrics.globalRegistry.timer("elasticsearch.total", "Type", "Record");
-
-    AtomicInteger records = new AtomicInteger(0);
+    private final Counter errors, failedCounter;
+    private final Timer total;
+    private final AtomicInteger records = new AtomicInteger(0);
 
     // @SneakyThrows
     @KafkaHandler

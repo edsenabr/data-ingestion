@@ -15,7 +15,7 @@ spec:
       labels:
         app: data-ingestion
     spec:
-      #serviceAccountName: statement-demo
+      serviceAccountName: statement-demo
       containers:
       - name: data-ingestion
         image: 837108680928.dkr.ecr.us-east-1.amazonaws.com/data-ingestion:latest
@@ -26,19 +26,19 @@ spec:
           subPath: application-aws.properties
         resources:
           limits:
-            memory: "2Gi"
-            cpu: 1
+            memory: "4Gi"
+            cpu: 2
           requests:
-            memory: "2Gi"
-            cpu: 1
+            memory: "4Gi"
+            cpu: 2
         env:
         - name: JAVA_OPTS
-          value: "-Xmx1024m -Xms1024m"
+          value: "-XX:MaxRAMPercentage=90.0"
         - name: KAFKA_BOOTSTRAP
           valueFrom:
             configMapKeyRef:
-              name: service-discovery
-              key: msk
+              name: kafka
+              key: bootstrap
         - name: KAFKA_GROUP_ID
           value: "data-ingestion"
         - name: KAFKA_MAX_POOL_RECORDS
@@ -47,33 +47,17 @@ spec:
           value: "100"
         - name: KAFKA_TOPIC
           value: "generate"
-        - name: ELASTICSEARCH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: elasticsearch
-              key: username
-        - name: ELASTICSEARCH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: elasticsearch
-              key: password
         - name: ELASTICSEARCH_URIS
           valueFrom:
             configMapKeyRef:
-              name: service-discovery
-              key: es
+              name: elasticsearch
+              key: url
         - name: CLOUDWATCH_NAMESPACE
           value: "statement12"
-        - name: CLOUDWATCH_USERNAME
+        - name: POD_NAME
           valueFrom:
-            secretKeyRef:
-              name: cloudwatch
-              key: username
-        - name: CLOUDWATCH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: cloudwatch
-              key: password
+            fieldRef:
+              fieldPath: metadata.name
       volumes:
       - configMap:
           name: application.properties

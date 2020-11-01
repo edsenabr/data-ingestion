@@ -15,7 +15,8 @@
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
-		<java.version>8</java.version>
+		<java.version>11</java.version>
+		<aws.sdk.version>1.11.887</aws.sdk.version>
 	</properties>
 
 	<dependencies>
@@ -39,18 +40,32 @@
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
 			<version>7.6.2</version>
 		</dependency>
-
-		<dependency>
-    	<groupId>org.springframework.cloud</groupId>
-    	<artifactId>spring-cloud-starter-aws</artifactId>
-    	<version>2.2.4.RELEASE</version>
-		</dependency>
 		<dependency>
     	<groupId>io.micrometer</groupId>
     	<artifactId>micrometer-core</artifactId>
     	<version>1.5.5</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-bom</artifactId>
+			<version>${aws.sdk.version}</version>
+			<type>pom</type>
+		</dependency>		
+		<dependency>
+  		<groupId>com.amazonaws</groupId>
+  		<artifactId>aws-java-sdk-sts</artifactId>
+  		<version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+	    <groupId>com.amazonaws</groupId>
+  	  <artifactId>aws-java-sdk-cloudwatch</artifactId>
+	    <version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+    	<groupId>org.springframework.cloud</groupId>
+    	<artifactId>spring-cloud-starter-aws</artifactId>
+    	<version>2.2.4.RELEASE</version>
+		</dependency>
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-cloudwatch</artifactId>

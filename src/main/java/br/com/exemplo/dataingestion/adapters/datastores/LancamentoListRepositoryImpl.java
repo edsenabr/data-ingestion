@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.annotation.PostConstruct;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,6 +16,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,38 +25,40 @@ import br.com.exemplo.dataingestion.domain.repositories.LancamentoListRepository
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class LancamentoListRepositoryImpl implements LancamentoListRepository {
 
-    private final RestHighLevelClient client;
-    private ObjectMapper jacksonObjectMapper = new ObjectMapper();
+    @Value("${POD_NAME}") 
+    private String podName;
+
     @Value("${processamento.elasticsearch.index:extrato_alias}")
     private String index;
 
     @Value("${spring.elasticsearch.rest.refresh-policy:false}")
     private String refreshPolicy;
 
+    @Autowired
+    private RestHighLevelClient client;
 
-    Counter itemsCounter = Metrics.globalRegistry.counter("elasticsearch.items", "Type", "Record");
-    Counter createdCounter = Metrics.globalRegistry.counter("elasticsearch.reported", "Type", "Record");
-    Counter updatedCounter = Metrics.globalRegistry.counter("elasticsearch.updated", "Type", "Record");
-    Counter failedCounter = Metrics.globalRegistry.counter("elasticsearch.failed", "Type", "Record");
+    private final ObjectMapper jacksonObjectMapper = new ObjectMapper();
+    private Counter itemsCounter, createdCounter, updatedCounter, failedCounter;
+    private Timer elasticSearchTimer, totalMethodTimer;
+    private final AtomicLong elasticSearchResponseTimeGauge = Metrics.globalRegistry.gauge("elasticsearch.took", new AtomicLong(0));
+    private final AtomicInteger batchSizeGauge = Metrics.globalRegistry.gauge("elasticsearch.batch", new AtomicInteger(0));
 
-    Timer elasticSearchTimer = Metrics.globalRegistry.timer("elasticsearch.request", "Type", "Record");
-    AtomicLong elasticSearchResponseTimeGauge = Metrics.globalRegistry.gauge("elasticsearch.took", new AtomicLong(0));
-    
-    AtomicInteger batchSizeGauge = Metrics.globalRegistry.gauge("elasticsearch.batch", new AtomicInteger(0));
-
-    Timer totalMethodTimer = Metrics.globalRegistry.timer("elasticsearch.write", "Type", "Record");
-
-
-    AtomicInteger totalSentRecords = new AtomicInteger(0);   
-    AtomicInteger totalErrorRecords = new AtomicInteger(0);
+    @PostConstruct
+    private void init() {
+        itemsCounter = Metrics.globalRegistry.counter("elasticsearch.items", "Type", podName);
+        createdCounter = Metrics.globalRegistry.counter("elasticsearch.reported", "Type", podName);
+        updatedCounter = Metrics.globalRegistry.counter("elasticsearch.updated", "Type", podName);
+        failedCounter = Metrics.globalRegistry.counter("elasticsearch.failed", "Type", podName);
+        elasticSearchTimer = Metrics.globalRegistry.timer("elasticsearch.request", "Type", podName);
+        totalMethodTimer = Metrics.globalRegistry.timer("elasticsearch.write", "Type", podName);
+    }
 
     @Override
     public List<String> save(List<Lancamento> lancamentoList) {
@@ -109,13 +114,11 @@ public class LancamentoListRepositoryImpl implements LancamentoListRepository {
             failedCounter.increment(requestErrors.intValue());
             batchSizeGauge.set(requestSent);
             log.info(
-                "Records so far: {} (added {}, created {}, updated {}, errors {}, total errors {})", 
-                totalSentRecords.addAndGet(requestSent),
+                "Records so far: (added {}, created {}, updated {}, errors {})", 
                 requestSent,
                 requestCreated,
                 requestUpdated,
-                requestErrors,
-                totalErrorRecords.addAndGet(requestErrors.intValue())
+                requestErrors
             );
         } catch (IOException e) {
             log.error("failed to send bulk request {}", e.getMessage());
@@ -123,4 +126,5 @@ public class LancamentoListRepositoryImpl implements LancamentoListRepository {
         methodTimer.stop(totalMethodTimer);
         return null;
     }
+
 }

@@ -1,4 +1,4 @@
-FROM amazoncorretto:8-alpine-jre
+FROM adoptopenjdk/openjdk11:jre-11.0.8_10-alpine
 WORKDIR /opt
 COPY kafka.client.truststore.jks /opt/kafka.client.truststore.jks
 COPY target/*.jar /opt/data-ingestion.jar
