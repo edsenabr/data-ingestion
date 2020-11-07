@@ -4,6 +4,8 @@ import lombok.*;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -11,6 +13,9 @@ import java.util.UUID;
 @Builder
 @ToString
 public class Conta {
+    @JsonProperty("nu")
     private UUID numeroUnicoConta;
+
+    @JsonProperty("cs")
     private String codigoSufixoConta;
 }
